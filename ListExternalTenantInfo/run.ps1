@@ -14,7 +14,11 @@ Write-Host "PowerShell HTTP trigger function processed a request."
 $Tenant = $request.query.tenant
 
 # Normalize to tenantid and determine if tenant exists
-$TenantId = (Invoke-RestMethod -Method GET "https://login.windows.net/$tenant/.well-known/openid-configuration").token_endpoint.Split('/')[3]
+try {
+    $TenantId = (Invoke-RestMethod -Method GET "https://login.windows.net/$tenant/.well-known/openid-configuration").token_endpoint.Split('/')[3]
+} catch {
+$StatusCode = [HttpStatusCode]::BadRequest
+}
 
 if ($TenantId) {
     $GraphRequest = New-GraphGetRequest -uri "https://graph.microsoft.com/beta/tenantRelationships/findTenantInformationByTenantId(tenantId='$TenantId')" -noauthcheck $true -tenantid $TenantFilter
