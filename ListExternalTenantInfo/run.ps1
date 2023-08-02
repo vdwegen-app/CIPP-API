@@ -58,8 +58,6 @@ if ($GraphRequest) {
     $TenantDomains = $response.Envelope.body.GetFederationInformationResponseMessage.response.Domains.Domain | Sort-Object
 }
 
-}
-
 $results = [PSCustomObject]@{
     GraphRequest = $GraphRequest
     Domains      = $TenantDomains
