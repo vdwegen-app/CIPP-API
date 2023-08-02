@@ -6,7 +6,6 @@ param($Request, $TriggerMetadata)
 $APIName = $TriggerMetadata.FunctionName
 Write-LogMessage -user $request.headers.'x-ms-client-principal' -API $APINAME  -message "Accessed this API" -Sev "Debug"
 
-
 # Write to the Azure Functions log stream.
 Write-Host "PowerShell HTTP trigger function processed a request."
 
@@ -62,8 +61,8 @@ if ($GraphRequest) {
 }
 
 $results = [PSCustomObject]@{
-    GraphRequest = if($GraphRequest) { $GraphRequest } else { [pscustomobject]@{ displayName = "Not a valid tenant" } }
-    Domains      = if($TenantDomains) { $TenantDomains } else { @("Not a valid tenant") }
+    GraphRequest = $GraphRequest
+    Domains      = $TenantDomains
 }
 
 # Associate values to output bindings by calling 'Push-OutputBinding'.
