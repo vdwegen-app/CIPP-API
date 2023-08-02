@@ -14,11 +14,7 @@ Write-Host "PowerShell HTTP trigger function processed a request."
 $Tenant = $request.query.tenant
 
 # Normalize to tenantid and determine if tenant exists
-try {
-    $TenantId = (Invoke-RestMethod -Method GET "https://login.windows.net/$tenant/.well-known/openid-configuration").token_endpoint.Split('/')[3]
-} catch {
-$StatusCode = [HttpStatusCode]::BadRequest
-}
+$TenantId = (Invoke-RestMethod -Method GET "https://login.windows.net/$tenant/.well-known/openid-configuration").token_endpoint.Split('/')[3]
 
 if ($TenantId) {
     $GraphRequest = New-GraphGetRequest -uri "https://graph.microsoft.com/beta/tenantRelationships/findTenantInformationByTenantId(tenantId='$TenantId')" -noauthcheck $true -tenantid $TenantFilter
@@ -63,9 +59,11 @@ if ($GraphRequest) {
     $TenantDomains = $response.Envelope.body.GetFederationInformationResponseMessage.response.Domains.Domain | Sort-Object
 }
 
+}
+
 $results = [PSCustomObject]@{
-    GraphRequest = $GraphRequest
-    Domains      = $TenantDomains
+    GraphRequest = if($GraphRequest) { $GraphRequest } else { [pscustomobject]@{ displayName = "Not a valid tenant" } }
+    Domains      = if($TenantDomains) { $TenantDomains } else { @("Not a valid tenant") }
 }
 
 # Associate values to output bindings by calling 'Push-OutputBinding'.
